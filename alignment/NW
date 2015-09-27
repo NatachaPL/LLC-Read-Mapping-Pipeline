@@ -1,0 +1,40 @@
+package alignment;
+
+import core.Read;
+
+/**
+ * Implementation of the Needleman-Wunsch algorithm
+ *
+ */
+public class NW extends Aligner{
+	
+	public NW(char[] g_seq, Read read) { 
+		super(g_seq, read);
+	}
+	
+	/**
+	 * @param int i - index at the matrix line with the scores for the genomic sequence
+	 * @param int j - index at the matrix column with the scores for the read sequence
+	 *
+	 * Note: These scores start at index 1 whereas the array of bases start at index 0
+	 * 
+	 * @return 1 if Match or -1 if Mismatch
+	 */
+	protected float weight(int i, int j){
+		if(g_seq[i-1] == read.getSeqAlign()[j-1]){ //Match
+			return 1;
+		}
+		else{ //Mismatch
+			return -1;
+		}
+	}
+	
+	/**
+	 * @return a gap counts as a mismatch
+	 */
+	protected int gap() {
+
+		return -1;
+	}
+
+}
