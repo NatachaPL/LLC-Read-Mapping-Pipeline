@@ -1,0 +1,105 @@
+package keys_exploder;
+import java.util.ArrayList;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.regex.Pattern;
+
+import util.Probabilities;
+import core.Read;
+
+/**
+ * Keys generated using the GNUMAP algorithm for the purpose
+ */
+public class GNUMAP extends Exploder{
+
+	public GNUMAP(Read read, Integer k) {
+		super(read, k);
+	}
+
+	protected void explode(Read read, int rindex, 
+			ArrayList<SimpleEntry<String, Integer>> keys, ArrayList<SimpleEntry<String, Integer>> temp){
+		
+		String consensus = getConsensus(read);
+		
+		for(int i = rindex; i< (read.getLength() - k); i += k){
+
+			String key; // = consensus_piece
+
+			for(int j = 0; (j+i) < (read.getLength() - k); j++){
+
+//				System.err.println("i = " + 1 + " j = " + j + " k = " + k);
+				 
+				key = consensus.substring(i+j, i+j+k);
+				
+				if(!Pattern.matches("[ACGT]*N+[ACGT]*", key)){
+					temp.add(new SimpleEntry<String, Integer>(key , i+j));
+				}
+			}
+		}
+		
+		keys.addAll(temp);
+		temp.clear();
+		if(DEBUG){
+			for(SimpleEntry<String, Integer> k : keys){
+				System.out.println(k.getValue() + "   " + k.getKey());
+			}
+		}
+	}
+	
+	//Methods to obtain a consensus read
+	
+	private String getConsensus(Read read){
+			
+		String s = "";
+		
+		for(int i = 0; i<read.getLength(); i++){
+			
+			s += maxBase(read.getProbabilitities(i));	
+		}
+		
+//		System.out.println(s.toString());
+		return s.toString();
+	}
+	
+	private char maxBase(Probabilities probs){
+		
+		if((probs.getProbA() == probs.getProbC()) && (probs.getProbA() == probs.getProbG()) && (probs.getProbA() == probs.getProbT())){
+			return 'N';
+		}
+		if(probs.getProbA() >= probs.getProbC()){
+			if(probs.getProbA() >= probs.getProbG()){
+				if(probs.getProbA() >= probs.getProbT()){
+					return 'A';
+				}
+				else{
+					return 'T';
+				}
+			}
+			else{
+				if(probs.getProbG() >= probs.getProbT()){
+					return 'G';
+				}
+				else{
+					return 'T';
+				}
+			}
+		}
+		else{
+			if(probs.getProbC() >= probs.getProbG()){
+				if(probs.getProbC() >= probs.getProbT()){
+					return 'C';					
+				}
+				else{
+					return 'T';
+				}
+			}
+			else{
+				if(probs.getProbG() >= probs.getProbT()){
+					return 'G';
+				}
+				else{
+					return 'T';						
+				}
+			}
+		}	
+	}
+}
