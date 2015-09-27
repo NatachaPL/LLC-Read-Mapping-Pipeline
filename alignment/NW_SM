@@ -1,0 +1,70 @@
+package alignment;
+
+import core.Read;
+
+/**
+ * Implementation of the Needleman-Wunsch algorithm using a similarity matrix
+ *
+ */
+public class NW_SM extends Aligner{
+
+	private int[][] sM;  // Similarity matrix pointing out penalties for nucleotide mismatch
+	
+	public NW_SM(char[] g_seq, Read read) {
+		super(g_seq, read);
+		this.sM = new int[][]{{2, 1, -1, -1, 0}, {1, 2, -1, -1, 0}, {-1, -1, 2, 1, 0}, {-1, -1, 1, 2, 0}, {0, 0, 0, 0, 0}};  
+		
+		/*
+		 * 		A	G	C	T	N
+		 * A	2	1	-1	-1	0	
+		 * G	1	2	-1	-1	0
+		 * C	-1	-1	2	1	0
+		 * T	-1	-1	1	2	0
+		 * N	0	0	0	0	0
+		 */
+		
+	}
+
+	private int basePosition(char c) {
+		//Each base character has its place at the similarity matrix.
+		switch (c) {
+		case 'A':
+			return 0;
+		case 'G':
+			return 1;
+		case 'C':
+			return 2;
+		case 'T':
+			return 3;
+		}
+		return 4;
+	}
+
+	 /**
+	 * @param int i - index at the matrix line with the scores for the genomic sequence
+	 * @param int j - index at the matrix column with the scores for the read sequence
+	 *
+	 * Note: These scores start at index 1 whereas the array of bases start at index 0
+	 *
+	 * @return the respective similarity result according with the sM
+	 */
+	protected float weight(int i, int j){
+		
+//		if(DEBUG){
+//		System.err.println("this.sM has a size of " + this.sM.length);
+//		System.err.println("value in g_seq[i-1] = " + g_seq[i-1]);
+//		System.err.println("value in r_seq[j-1] = " + r_seq[j-1]);
+//		System.err.println("value in basePosition(g_seq[i-1]) = " + basePosition(g_seq[i-1]));
+//		System.err.println("value in basePosition(r_seq[j-1]) = " + basePosition(r_seq[j-1]));
+//		}
+		return this.sM[basePosition(g_seq[i-1])][basePosition(read.getSeqAlign()[j-1])];		
+	}
+	
+	/**
+	 * @return a gap counts as a mismatch
+	 */
+	protected int gap() {
+
+		return -1;
+	}
+}
